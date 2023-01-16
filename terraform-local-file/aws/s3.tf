@@ -6,8 +6,8 @@ resource "aws_s3_bucket" "finance" {
 }
 
 resource "aws_s3_object" "finance-2023" {
-  source = "Warp.dmg"
-  key = "Warp.dmg"
+  source = "Networking.pdf"
+  key = "Networking.pdf"
 #   force_destroy = true
   bucket = aws_s3_bucket.finance.id
 }
