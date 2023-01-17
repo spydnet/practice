@@ -1,5 +1,6 @@
 resource "aws_s3_bucket" "state" {
     bucket = "kodecloud-terraform-state-bucket01"
+    force_destroy = true
     tags = {
         Description = "Bucket for storing state files"
     }  
