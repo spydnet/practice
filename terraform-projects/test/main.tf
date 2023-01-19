@@ -10,6 +10,14 @@ resource "aws_instance" "my_webserver" {
     Name  = "WebS TF"
     Owner = "Andrew Belko"
   }
+
+  lifecycle {
+    create_before_destroy = true
+    ignore_changes = [
+      ami,
+      instance_type
+    ]
+  }
 }
 
 
