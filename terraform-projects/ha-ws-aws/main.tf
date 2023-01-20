@@ -15,7 +15,7 @@ resource "aws_security_group" "my_webserver" {
   name = "Dynamic Security Group"
 
   dynamic "ingress" {
-    for_each = ["80", "443"]
+    for_each = var.allow_ports
     content {
       from_port   = ingress.value
       to_port     = ingress.value
@@ -30,16 +30,13 @@ resource "aws_security_group" "my_webserver" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  tags = {
-    Name  = "DSG"
-    Owner = "Andrew Belko"
-  }
+  tags = merge(var.common_tags, { Name = "${var.common_tags["Environment"]} Security group by Terraform" })
 }
 
 resource "aws_launch_configuration" "my_webserver" {
   name_prefix     = "web-server-ha-"
   image_id        = data.aws_ami.latest_amazon_linux.image_id
-  instance_type   = "t2.micro"
+  instance_type   = var.instance_type
   security_groups = [aws_security_group.my_webserver.id]
   user_data       = file("user_data.sh")
 
@@ -80,9 +77,7 @@ resource "aws_elb" "my_webserver" {
     target              = "HTTP:80/"
     interval            = 10
   }
-  tags = {
-    Name = "Webserver load balancer"
-  }
+  tags = merge(var.common_tags, { Name = "${var.common_tags["Environment"]} Load Balancer by Terraform" })
 }
 
 resource "aws_default_subnet" "default_az1" {
@@ -91,8 +86,4 @@ resource "aws_default_subnet" "default_az1" {
 
 resource "aws_default_subnet" "default_az2" {
   availability_zone = data.aws_availability_zones.available.names[1]
-}
-
-output "web_loadbalancer_url" {
-  value = aws_elb.my_webserver.dns_name
 }
